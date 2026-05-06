@@ -119,4 +119,3 @@ npm run build -- --configuration=production  # Production build
 - **HTTP Interceptor** handles `withCredentials` + auto refresh on 401
 - **Optimistic UI**: Card drag-and-drop updates UI instantly, rolls back on API error
 - All field names match backend DTOs exactly (`cardId`, `boardId`, `workspaceId`, etc.)
-# Task-Management-App-Frontend

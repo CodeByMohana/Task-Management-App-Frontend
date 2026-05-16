@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://3.106.87.125:8080'
+  apiUrl: 'https://flowboard-mohana.duckdns.org/'
 };

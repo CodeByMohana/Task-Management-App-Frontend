@@ -159,8 +159,8 @@ export class LoginComponent {
   errorMsg = signal('');
   showPassword = signal(false);
 
-  googleOAuthUrl = `${environment.apiUrl}/oauth2/authorize/google`;
-  githubOAuthUrl = `${environment.apiUrl}/oauth2/authorize/github`;
+  googleOAuthUrl = `${environment.apiUrl}/oauth2/authorization/google`;
+  githubOAuthUrl = `${environment.apiUrl}/oauth2/authorization/github`;
 
   constructor(
     private fb: FormBuilder,

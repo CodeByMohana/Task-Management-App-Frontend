@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://flowboard-mohana.duckdns.org/'
+  apiUrl: 'https://flowboard-mohana.duckdns.org'
 };

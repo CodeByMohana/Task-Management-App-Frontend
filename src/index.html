@@ -11,6 +11,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 </head>
 <body>
+    <script>
+    // Apply dark mode immediately to prevent flash of light theme on reload.
+    try { if (localStorage.getItem('flowboard-dark-mode') === 'true') document.body.classList.add('dark'); } catch(e) {}
+  </script>
   <app-root></app-root>
 </body>
 </html>

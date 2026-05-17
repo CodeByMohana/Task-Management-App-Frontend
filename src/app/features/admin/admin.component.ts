@@ -148,8 +148,7 @@ import { Workspace } from '../../core/models/workspace.model';
     }
     .search-bar input:focus { outline: none; border-color: var(--accent,#6366f1); }
 
-    .table-card { background: var(--card-bg,#fff); border: 1px solid var(--border,#e5e7eb); border-radius: 14px; overflow: hidden; }
-    .table-header { padding: 16px 20px; border-bottom: 1px solid var(--border,#e5e7eb); display: flex; align-items: center; justify-content: space-between; }
+    .table-card { background: var(--card-bg,#fff); border: 1px solid var(--border,#e5e7eb); border-radius: 14px; overflow: hidden; overflow-x: auto; }    .table-header { padding: 16px 20px; border-bottom: 1px solid var(--border,#e5e7eb); display: flex; align-items: center; justify-content: space-between; }
     .table-header h4 { margin: 0; font-size: 16px; }
     .loading-text { font-size: 12px; color: var(--text-muted,#6b7280); }
     .table-error { padding: 12px 20px; background: rgba(239,68,68,0.1); color: #ef4444; font-size: 13px; }

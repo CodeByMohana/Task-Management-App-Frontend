@@ -8,6 +8,7 @@ import { WorkspaceService } from '../../core/services/workspace.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { CardService } from '../../core/services/card.service';
 import { CommentService } from '../../core/services/comment.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { Workspace } from '../../core/models/workspace.model';
 import { Notification } from '../../core/models/notification.model';
 import { environment } from '../../../environments/environment';
@@ -17,7 +18,7 @@ import { environment } from '../../../environments/environment';
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule],
   template: `
-    <div class="shell" [class.dark]="darkMode()">
+    <div class="shell" [class.dark]="themeService.darkMode()">
       <!-- Sidebar -->
       <aside class="sidebar" [class.collapsed]="sidebarCollapsed()">
         <div class="sidebar-header">
@@ -83,15 +84,15 @@ import { environment } from '../../../environments/environment';
         }
 
         <div class="sidebar-footer">
-          <button class="nav-item dark-toggle" (click)="darkMode.set(!darkMode())" title="Toggle dark mode">
+          <button class="nav-item dark-toggle" (click)="themeService.toggle()" title="Toggle dark mode">
             <span class="nav-icon">
-              @if (darkMode()) {
+              @if (themeService.darkMode()) {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
               } @else {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
               }
             </span>
-            @if (!sidebarCollapsed()) { <span>{{ darkMode() ? 'Light Mode' : 'Dark Mode' }}</span> }
+            @if (!sidebarCollapsed()) { <span>{{ themeService.darkMode() ? 'Light Mode' : 'Dark Mode' }}</span> }
           </button>
         </div>
       </aside>
@@ -183,6 +184,11 @@ import { environment } from '../../../environments/environment';
           <ng-content></ng-content>
         </main>
       </div>
+
+      <!-- Mobile FAB for creating workspace (visible only on mobile where sidebar-section is hidden) -->
+      <button class="mobile-fab" (click)="showCreateWs.set(true)" title="New Workspace">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      </button>
 
       <!-- Create Workspace Modal -->
       @if (showCreateWs()) {
@@ -419,6 +425,19 @@ import { environment } from '../../../environments/environment';
       --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
     }
 
+    /* Mobile FAB – hidden by default, shown only on mobile */
+    .mobile-fab {
+      display: none;
+      position: fixed; bottom: 80px; right: 20px; z-index: 50;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--accent); color: #fff; border: none;
+      box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+      cursor: pointer; align-items: center; justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .mobile-fab:hover { transform: scale(1.05); box-shadow: 0 6px 24px rgba(99,102,241,0.5); }
+    .mobile-fab:active { transform: scale(0.95); }
+
     /* Responsive Layout Breakpoints */
     @media (max-width: 1024px) {
       /* Force collapse on tablet */
@@ -436,8 +455,10 @@ import { environment } from '../../../environments/environment';
       .topbar { padding: 0 16px; }
       .page-content { padding: 16px; }
       
-      /* Option 1: Mobile Bottom Nav (Requires HTML rewrite) 
-         Option 2: Sidebar becomes bottom nav using CSS only */
+      /* Show mobile FAB */
+      .mobile-fab { display: flex; }
+
+      /* Sidebar becomes bottom nav */
       .shell { flex-direction: column; }
       .sidebar { 
         width: 100% !important; 
@@ -462,6 +483,12 @@ import { environment } from '../../../environments/environment';
         border-radius: 0;
       }
       .main-area { order: 1; }
+
+      /* Notification dropdown mobile fix */
+      .notif-dropdown { width: calc(100vw - 32px); max-width: 380px; right: -8px; }
+
+      /* Modal mobile fix */
+      .modal { max-width: calc(100vw - 32px); margin: 16px; }
     }
   `]
 })
@@ -470,7 +497,6 @@ export class ShellComponent implements OnInit, OnDestroy {
   userInitial: () => string;
   workspaces = signal<Workspace[]>([]);
   sidebarCollapsed = signal(false);
-  darkMode = signal(false);
   showNotifs = signal(false);
   showUserMenu = signal(false);
   showCreateWs = signal(false);
@@ -489,7 +515,8 @@ export class ShellComponent implements OnInit, OnDestroy {
     public notifService: NotificationService,
     private router: Router,
     private cardService: CardService,
-    private commentService: CommentService
+    private commentService: CommentService,
+    public themeService: ThemeService
   ) {
     this.currentUser = this.auth.currentUser;
     this.userInitial = () => {
